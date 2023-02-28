@@ -166,19 +166,59 @@ void createNote(student *students, int& quantity, int& maxQuantity, string fileN
         memcpy(students, newStudents, quantity * sizeof(student));
         delete[] newStudents;
     }
+    string name;
+    char gender;
+    int groupNum;
+    int studNum;
+    int studGrades[8];
     cout << "ФИО: ";                                               // Ввод в массив
-    cin >> students[quantity].fullName;
-    cout << "\nПол (M/Ж): ";
-    cin >> students[quantity].sex;
+    cin >> name;
+    cout << "\nПол (M/F): ";
+    cin >> gender;
+    if (gender != 'M' and gender != 'F' and gender != 'm' and gender != 'f') {
+        cout << "Неверно введен пол!\n";
+        cin.clear();
+        return;
+    }
     cout << "\nГруппа №: ";
-    cin >> students[quantity].group;
+    cin >> groupNum;
+    if (groupNum < 0) {
+        cout << "Неверно введена группа!\n";
+        cin.clear();
+        return;
+    }
     cout << "\nНомер в списке: ";
-    cin >> students[quantity].number;
+    cin >> studNum;
+    if (studNum < 0) {
+        cout << "Неверно введен номер студента!\n";
+        cin.clear();
+        return;
+    }
     cout << "\nОценки (8 оценок): ";
-    for (int i = 0; i < 8; i++)
-        cin >> students[quantity].grades[i];
+    for (int i = 0; i < 8; i++) {
+        cin >> studGrades[i];
+        if (studGrades[i] == 2) {
+            cout << "Студент не может быть добавлен! Студент должен быть отчислен!\n";
+            cin.clear();
+            cin.ignore(32767, '\n');
+            return;
+        }
+        if (studGrades[i] < 2 or studGrades[i] > 5) {
+            cout << "Неверно введены оценки!\n";
+            cin.clear();
+            cin.ignore(32767, '\n');
+            return;
+        }
+    }
     cout << "\n";
 
+    students[quantity].fullName = name;
+    students[quantity].sex = gender;
+    students[quantity].group = groupNum;
+    students[quantity].number = studNum;
+    for (int i = 0; i < 8; i++) {
+        students[quantity].grades[i] = studGrades[i];
+    }
     ofstream database;                                               // Запись в файл
     database.open(fileName, ios::app);
     if (!database.is_open()) {
@@ -197,9 +237,22 @@ void createNote(student *students, int& quantity, int& maxQuantity, string fileN
 }
 
 void changeNote(student* students, string fileName, int quantity) {
+    if (!quantity) {
+        setTextColor(4);
+        cout << "Студентов в списке нет!\n";
+        setTextColor(15);
+        return;
+    }
+    cout << "Всего студентов в списке: " << quantity << '\n';
     int number;
     cout << "Введите номер студента в списке: ";
     cin >> number;
+    if (number < 1 or number > quantity) {
+        setTextColor(4);
+        cout << "Неверный номер!\n";
+        setTextColor(15);
+        return;
+    }
     int currentNum = 1;
     system("cls");
     changeNoteOutput(currentNum, students, number - 1);
@@ -277,6 +330,12 @@ void changeNote(student* students, string fileName, int quantity) {
 }
 
 void showAll(student* students, int quantity) {
+    if (!quantity) {
+        setTextColor(4);
+        cout << "Студентов в списке нет!\n";
+        setTextColor(15);
+        return;
+    }
     for (int i = 0; i < quantity; i++) {
         cout << "Номер в списке всех студентов: " << i + 1 << '\n';
         cout << "ФИО: " << students[i].fullName << '\n';
@@ -291,6 +350,12 @@ void showAll(student* students, int quantity) {
 }
 
 void showGroup(student* students, int quantity) {
+    if (!quantity) {
+        setTextColor(4);
+        cout << "Студентов в списке нет!\n";
+        setTextColor(15);
+        return;
+    }
     unsigned groupNumber;
     cout << "Введите номер группы: ";
     cin >> groupNumber;
@@ -311,6 +376,12 @@ void showGroup(student* students, int quantity) {
 }
 
 void topGrades(student* students, int quantity) {
+    if (!quantity) {
+        setTextColor(4);
+        cout << "Студентов в списке нет!\n";
+        setTextColor(15);
+        return;
+    }
     double** averageScore = new double*[quantity];
     averageScore[0] = new double[quantity * 2];
     for (int i = 1; i < quantity; i++) {
@@ -324,11 +395,8 @@ void topGrades(student* students, int quantity) {
         averageScore[i][0] /= 8;
     }
     bool swapped = true;
-    int tempLastUnsortedElement;
-    for (int i = 0; i < quantity; i++) {
-        cout << averageScore[i][0] << ' ' << averageScore[i][1] << '\n';
-    }
     int lastUnsortedElement = quantity;
+    int tempLastUnsortedElement = lastUnsortedElement;
     while (swapped) {
         swapped = false;
         for (int i = 1; i < lastUnsortedElement; i++) {
@@ -364,6 +432,12 @@ void genders(student* students, int quantity) {
 }
 
 void scholarship(student* students, int quantity) {
+    if (!quantity) {
+        setTextColor(4);
+        cout << "Студентов в списке нет!\n";
+        setTextColor(15);
+        return;
+    }
     int currentNum = 1;
     scholarshipOutput(currentNum);
     int button;
@@ -463,6 +537,12 @@ void scholarship(student* students, int quantity) {
 }
 
 void showNumber(student* students, int quantity) {
+    if (!quantity) {
+        setTextColor(4);
+        cout << "Студентов в списке нет!\n";
+        setTextColor(15);
+        return;
+    }
     unsigned studentNumber;
     cout << "Введите номер студента в группе: ";
     cin >> studentNumber;

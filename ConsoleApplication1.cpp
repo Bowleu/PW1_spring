@@ -166,44 +166,47 @@ void createNote(student *students, int& quantity, int& maxQuantity, string fileN
         memcpy(students, newStudents, quantity * sizeof(student));
         delete[] newStudents;
     }
-    string name;
-    char gender;
-    int groupNum;
-    int studNum;
-    int studGrades[8];
+    student checkedStudent;
     cout << "ФИО: ";                                               // Ввод в массив
-    cin >> name;
+    cin >> checkedStudent.fullName;
     cout << "\nПол (M/F): ";
-    cin >> gender;
-    if (gender != 'M' and gender != 'F' and gender != 'm' and gender != 'f') {
+    cin >> checkedStudent.sex;
+    if (checkedStudent.sex != 'M' and checkedStudent.sex != 'F' and checkedStudent.sex != 'm' and checkedStudent.sex != 'f') {
         cout << "Неверно введен пол!\n";
         cin.clear();
         return;
     }
     cout << "\nГруппа №: ";
-    cin >> groupNum;
-    if (groupNum < 0) {
+    cin >> checkedStudent.group;
+    if (checkedStudent.group < 0) {
         cout << "Неверно введена группа!\n";
         cin.clear();
         return;
     }
     cout << "\nНомер в списке: ";
-    cin >> studNum;
-    if (studNum < 0) {
+    cin >> checkedStudent.number;
+    if (checkedStudent.number < 0) {
         cout << "Неверно введен номер студента!\n";
         cin.clear();
         return;
     }
+    for (int i = 0; i < quantity; i++) {
+        if (checkedStudent.number == students[i].number and checkedStudent.group == students[i].group) {
+            cout << "Студент с таким номером уже есть в списке!\n";
+            cin.clear();
+            return;
+        }
+    }
     cout << "\nОценки (8 оценок): ";
     for (int i = 0; i < 8; i++) {
-        cin >> studGrades[i];
-        if (studGrades[i] == 2) {
+        cin >> checkedStudent.grades[i];
+        if (checkedStudent.grades[i] == 2) {
             cout << "Студент не может быть добавлен! Студент должен быть отчислен!\n";
             cin.clear();
             cin.ignore(32767, '\n');
             return;
         }
-        if (studGrades[i] < 2 or studGrades[i] > 5) {
+        if (checkedStudent.grades[i] < 2 or checkedStudent.grades[i] > 5) {
             cout << "Неверно введены оценки!\n";
             cin.clear();
             cin.ignore(32767, '\n');
@@ -212,12 +215,12 @@ void createNote(student *students, int& quantity, int& maxQuantity, string fileN
     }
     cout << "\n";
 
-    students[quantity].fullName = name;
-    students[quantity].sex = gender;
-    students[quantity].group = groupNum;
-    students[quantity].number = studNum;
+    students[quantity].fullName = checkedStudent.fullName;
+    students[quantity].sex = checkedStudent.sex;
+    students[quantity].group = checkedStudent.group;
+    students[quantity].number = checkedStudent.number;
     for (int i = 0; i < 8; i++) {
-        students[quantity].grades[i] = studGrades[i];
+        students[quantity].grades[i] = checkedStudent.grades[i];
     }
     ofstream database;                                               // Запись в файл
     database.open(fileName, ios::app);
@@ -406,8 +409,6 @@ void topGrades(student* students, int quantity) {
                 swapped = true;
                 tempLastUnsortedElement = i + 1;
             }
-            cout << lastUnsortedElement << quantity;
-            cout << swapped << '\n';
         }
         lastUnsortedElement = tempLastUnsortedElement;
     }
@@ -598,11 +599,15 @@ int main()
             else if (button == 13) {
                 if (currentNum != 9)
                     break;
-                else
+                else {
+                    delete[] students;
                     return 0;
+                }
             }
-            else if (button == 27)
+            else if (button == 27) {
+                delete[] students;
                 return 0;
+            }
         }
         system("cls");
         switch (currentNum) {
